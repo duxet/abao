@@ -13,7 +13,6 @@ DFLT_TEMPLATE_FILE = "#{TEMPLATE_DIR}/hooks.js"
 FIXTURE_DIR = './test/fixtures'
 RAML_DIR = "#{FIXTURE_DIR}"
 HOOK_DIR = "#{FIXTURE_DIR}"
-SCHEMA_DIR = "#{FIXTURE_DIR}/schemas"
 
 CMD_PREFIX = ''
 ABAO_BIN = './bin/abao'
@@ -389,52 +388,3 @@ describe 'Command line interface', ->
 
         it 'should not run test without hooks', ->
           assert.include stdout, '0 passing'
-
-      describe 'when invoked with "--schema" option', () ->
-        before (done) ->
-          ramlFile = "#{RAML_DIR}/with-json-refs.raml"
-          cmd = "#{ABAO_BIN} #{ramlFile} --server #{SERVER} --schemas=#{SCHEMA_DIR}/*.json"
-
-          app = express()
-
-          app.get '/machines', (req, res) ->
-            res.setHeader 'Content-Type', 'application/json'
-            machine =
-              type: 'bulldozer'
-              name: 'willy'
-            response = [machine]
-            res.status(200).send response
-
-          server = app.listen PORT, () ->
-            execCommand cmd, () ->
-              server.close()
-
-          server.on 'close', done
-
-        it 'exit status should be 0', () ->
-          assert.equal exitStatus, 0
-
-      describe 'when invoked with "--schema" option and expecting error', () ->
-        before (done) ->
-          ramlFile = "#{RAML_DIR}/with-json-refs.raml"
-          cmd = "#{ABAO_BIN} #{ramlFile} --server #{SERVER} --schemas=#{SCHEMA_DIR}/*.json"
-
-          app = express()
-
-          app.get '/machines', (req, res) ->
-            res.setHeader 'Content-Type', 'application/json'
-            machine =
-              typO: 'bulldozer'
-              name: 'willy'
-            response = [machine]
-            res.status(200).send response
-
-          server = app.listen PORT, () ->
-            execCommand cmd, () ->
-              server.close()
-
-          server.on 'close', done
-
-        it 'exit status should be 1', () ->
-          assert.equal exitStatus, 1
-

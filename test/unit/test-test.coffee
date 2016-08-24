@@ -165,52 +165,6 @@ describe 'Test', ->
         assert.equal response.status, 200
         assert.deepEqual response.body, machine
 
-    describe 'Init a TestFactory', ->
-
-      globStub = {}
-      globStub.sync = sinon.spy((location) ->
-        return [location]
-      )
-
-      fsStub = {}
-      fsStub.readFileSync = sinon.spy(() ->
-        return '{ "text": "example" }'
-      )
-
-      tv4Stub = {}
-      tv4Stub.banUnknown = false
-      tv4Stub.addSchema = sinon.spy()
-
-      TestTestFactory = proxyquire '../../lib/test', {
-        'fs': fsStub,
-        'glob': globStub,
-        'tv4': tv4Stub
-      }
-
-      it 'test TestFactory without parameter', ->
-        new TestTestFactory('')
-        assert.isFalse globStub.sync.called
-        assert.isFalse fsStub.readFileSync.called
-        assert.isFalse tv4Stub.banUnknown
-        assert.isFalse tv4Stub.addSchema.called
-
-      it 'test TestFactory with name 1', ->
-        new TestTestFactory('thisisaword')
-        assert.isTrue globStub.sync.calledWith('thisisaword')
-        assert.isTrue fsStub.readFileSync.calledOnce
-        assert.isTrue fsStub.readFileSync.calledWith('thisisaword','utf8')
-        assert.isTrue tv4Stub.banUnknown
-        assert.isTrue tv4Stub.addSchema.calledWith(JSON.parse('{ "text": "example" }'))
-
-      it 'test TestFactory with name 2', ->
-        new TestTestFactory('thisIsAnotherWord')
-        assert.isTrue globStub.sync.calledWith('thisIsAnotherWord')
-        assert.isTrue fsStub.readFileSync.calledTwice
-        assert.isTrue fsStub.readFileSync.calledWith('thisIsAnotherWord','utf8')
-        assert.isTrue tv4Stub.banUnknown
-        assert.isTrue tv4Stub.addSchema.calledWith(JSON.parse('{ "text": "example" }'))
-
-
   describe '#url', ->
 
     describe 'when call with path does not contain param', ->
@@ -288,4 +242,3 @@ describe 'Test', ->
         bodyStub = 'Im invalid'
         fn = _.partial test.assertResponse, errorStub, responseStub, bodyStub
         assert.throw fn, chai.AssertionError
-

@@ -8,11 +8,6 @@ options =
     description: 'Specify pattern to match files with before/after hooks for running tests'
     type: 'string'
 
-  schemas:
-    alias: 's'
-    description: 'Specify pattern to match schema files to be loaded for use as JSON refs'
-    type: 'string'
-
   reporter:
     alias: 'r'
     description: 'Specify reporter to use'
@@ -65,4 +60,3 @@ options =
     type: 'boolean'
 
 module.exports = options
-

@@ -2,11 +2,12 @@ chai = require 'chai'
 request = require 'request'
 _ = require 'underscore'
 async = require 'async'
-tv4 = require 'tv4'
+ajv = require 'ajv'
 fs = require 'fs'
 glob = require 'glob'
 
 assert = chai.assert
+ajv = new ajv
 
 
 String::contains = (it) ->
@@ -14,18 +15,6 @@ String::contains = (it) ->
 
 
 class TestFactory
-  constructor: (schemaLocation) ->
-    if schemaLocation
-
-      files = glob.sync schemaLocation
-      console.error 'Found JSON ref schemas: ' + files
-      console.error ''
-
-      tv4.banUnknown = true
-
-      for file in files
-        tv4.addSchema(JSON.parse(fs.readFileSync(file, 'utf8')))
-
   create: (name, contentTest) ->
     return new Test(name, contentTest)
 
@@ -102,6 +91,7 @@ class Test
       schema = @response.schema
       validateJson = _.partial JSON.parse, body
       body = '[empty]' if body is ''
+
       assert.doesNotThrow validateJson, JSON.SyntaxError, """
         Invalid JSON:
         #{body}
@@ -109,13 +99,9 @@ class Test
       """
 
       json = validateJson()
-      result = tv4.validateResult json, schema
-      assert.lengthOf result.missing, 0, """
-        Missing/unresolved JSON schema $refs (#{result.missing?.join(', ')}) in schema:
-        #{JSON.stringify(schema, null, 4)}
-        Error
-      """
-      assert.ok result.valid, """
+      result = ajv.validate schema, json
+
+      assert.ok result, """
         Got unexpected response body: #{result.error?.message}
         #{JSON.stringify(json, null, 4)}
         Error
@@ -126,4 +112,3 @@ class Test
 
 
 module.exports = TestFactory
-
